@@ -2,17 +2,17 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
   contents: write
-  actions: read
 
 env:
   DEPLOY_BRANCH: dist
+  S3_BUCKET: folio-eureka-apps
 
 jobs:
   build:
@@ -25,7 +25,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install dependencies
         run: npm ci
@@ -33,29 +33,35 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Deploy dist folder to branch
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy to S3
         run: |
-          # Setup SSH deploy key
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          
-          # Create a clean directory for deployment
-          mkdir -p deploy
-          cp -r dist/* deploy/
-          cd deploy
-          
-          # Configure git
-          git config --global user.name "GitHub Actions Deploy"
-          git config --global user.email "actions@github.com"
-          
-          # Initialize git and create the branch
-          git init
-          git checkout -b ${{ env.DEPLOY_BRANCH }}
-          git add .
-          git commit -m "Deploy from commit ${{ github.sha }}"
-          
-          # Push using SSH deploy key (bypasses ruleset)
-          git remote add origin git@github.com:${{ github.repository }}.git
-          GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" git push --force origin ${{ env.DEPLOY_BRANCH }}
+          aws s3 cp dist/index.html s3://${{ env.S3_BUCKET }}/index.html
+          echo "Successfully deployed index.html to S3 bucket: ${{ env.S3_BUCKET }}"
+
+      # - name: Deploy dist folder to branch
+      #   run: |
+      #     # Create a clean directory for deployment
+      #     mkdir -p deploy
+      #     cp -r dist/* deploy/
+      #     cd deploy
+
+      #     # Configure git
+      #     git config --global user.name "GitHub Actions"
+      #     git config --global user.email "actions@github.com"
+
+      #     # Initialize git and create the branch
+      #     git init
+      #     git checkout -b ${{ env.DEPLOY_BRANCH }}
+      #     git add .
+      #     git commit -m "Deploy from commit ${{ github.sha }}"
+
+      #     # Push to the target branch
+      #     git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+      #     git push --force origin ${{ env.DEPLOY_BRANCH }}
