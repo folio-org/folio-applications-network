@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Network</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style type="text/css">
+      #main {
+        display: flex;
+        justify-content: center;
+      }
+      
+      #apps_network {
+        width: 1200px;
+        height: 760px;
+        border: 2px solid lightgray;
+        border-left: 0;
+      }
+      
+      #legend {
+        width: 170px;
+        height: 760px;
+        border: 2px solid lightgray;
+        border-right: 0;
+        padding: 0 10px;
+      }
+      
+      #legend .legend-list {
+        padding: 0;
+        list-style: none;
+      }
+      
+      #legend .legend-list .legend-section {
+        font-weight: 600;
+        margin: 8px 5px;
+      }
+      
+      #legend .legend-color {
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+        vertical-align: middle;
+      }
+      
+      #legend .legend-color.valid {
+        background: #97c2fc;
+        border: 1px solid #2b7ce8;
+      }
+      
+      #legend .legend-color.invalid {
+        background: red;
+        border: 1px solid red;
+      }
+      
+      #legend .legend-color.planned {
+        background: grey;
+        border: 1px solid lightgray;
+      }
+      
+      #legend .legend-element {
+        display: inline-block;
+        vertical-align: middle;
+      }
+      
+      #legend .legend-element.application {
+        width: 20px;
+        height: 10px;
+        border-radius: 50%;
+        background: #97c2fc;
+        border: 1px solid #2b7ce8;
+      }
+      
+      #legend .label {
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="main">
+      <div id="legend">
+        <h2>Legend</h2>
+        <ul class="legend-list">
+          <li class="legend-section">Color</li>
+          <li><span class="legend-color valid"></span><span class="label">Valid</span></li>
+          <li><span class="legend-color invalid"></span><span class="label">Invalid</span></li>
+          <li><span class="legend-color planned"></span><span class="label">Planned</span></li>
+          <li class="legend-section">Element</li>
+          <li><span class="legend-element application"></span><span class="label">Application</span></li>
+          <li><span class="legend-element required">&#8594;</span><span class="label">Required dependency</span></li>
+          <li><span class="legend-element optional">&#8674;</span><span class="label">Optional dependency</span></li>
+        </ul>
+      </div>
+      <div id="apps_network"></div>
+    </div>
+    <script type="text/javascript">
+      // create an array with nodes
+      var nodes = new vis.DataSet([{"id":"app-platform-minimal","label":"app-platform-minimal"},{"id":"app-platform-complete","label":"app-platform-complete"},{"id":"app-acquisitions","label":"app-acquisitions"},{"id":"app-mosaic","label":"app-mosaic"},{"id":"app-gobi","label":"app-gobi"},{"id":"app-ebsconet","label":"app-ebsconet"},{"id":"app-oai-pmh","label":"app-oai-pmh"},{"id":"app-fqm","label":"app-fqm"},{"id":"app-lists","label":"app-lists"},{"id":"app-oa","label":"app-oa"},{"id":"app-licenses","label":"app-licenses"},{"id":"app-agreements","label":"app-agreements"},{"id":"app-erm-usage","label":"app-erm-usage"},{"id":"app-service-interaction","label":"app-service-interaction"},{"id":"app-dashboard","label":"app-dashboard"},{"id":"app-z3950","label":"app-z3950","color":{"border":"red","background":"red"}},{"id":"app-reporting","label":"app-reporting"},{"id":"app-bulk-edit","label":"app-bulk-edit"},{"id":"app-linked-data","label":"app-linked-data"},{"id":"app-reading-room","label":"app-reading-room"},{"id":"app-inn-reach","label":"app-inn-reach"},{"id":"app-dcb","label":"app-dcb"},{"id":"app-consortia","label":"app-consortia"},{"id":"app-consortia-manager","label":"app-consortia-manager"},{"id":"app-marc-migrations","label":"app-marc-migrations"},{"id":"app-requests-ecs","label":"app-requests-ecs"},{"id":"app-requests-mediated","label":"app-requests-mediated"},{"id":"app-requests-mediated-ui","label":"app-requests-mediated-ui"},{"id":"app-rtac","label":"app-rtac"},{"id":"app-edge-complete","label":"app-edge-complete"},{"id":"app-serials-management","label":"app-serials-management"},{"id":"app-data-export","label":"app-data-export"}]);
+      
+      // create an array with edges
+      var edges = new vis.DataSet([{"from":"app-platform-complete","to":"app-platform-minimal"},{"from":"app-platform-complete","to":"app-acquisitions","color":{"color":"red"},"title":"There are modules that reference to app-acquisitions, but it is not a dependency of app-platform-complete. This is likely an error in the module definitions."},{"from":"app-acquisitions","to":"app-platform-complete"},{"from":"app-mosaic","to":"app-acquisitions"},{"from":"app-gobi","to":"app-acquisitions"},{"from":"app-ebsconet","to":"app-acquisitions"},{"from":"app-oai-pmh","to":"app-platform-complete"},{"from":"app-fqm","to":"app-acquisitions","color":{"color":"red"},"title":"It should be optional dependency"},{"from":"app-lists","to":"app-fqm"},{"from":"app-oa","to":"app-platform-minimal"},{"from":"app-licenses","to":"app-platform-minimal"},{"from":"app-licenses","to":"app-acquisitions","dashes":true,"color":{"color":"red"},"title":"It should not depend to whole set of acq modules"},{"from":"app-agreements","to":"app-licenses"},{"from":"app-erm-usage","to":"app-agreements"},{"from":"app-erm-usage","to":"app-acquisitions","color":{"color":"red"},"title":"It should not depend to whole set of acq modules"},{"from":"app-service-interaction","to":"app-platform-minimal"},{"from":"app-dashboard","to":"app-service-interaction"},{"from":"app-dashboard","to":"app-licenses","dashes":true,"color":{"color":"grey"}},{"from":"app-dashboard","to":"app-agreements","dashes":true,"color":{"color":"grey"}},{"from":"app-z3950","to":"app-platform-complete"},{"from":"app-reporting","to":"app-platform-minimal"},{"from":"app-bulk-edit","to":"app-fqm","color":{"color":"red"},"title":"It should be optional dependency"},{"from":"app-linked-data","to":"app-platform-complete"},{"from":"app-reading-room","to":"app-platform-complete"},{"from":"app-inn-reach","to":"app-platform-complete"},{"from":"app-dcb","to":"app-platform-complete"},{"from":"app-consortia","to":"app-platform-minimal"},{"from":"app-consortia-manager","to":"app-consortia"},{"from":"app-marc-migrations","to":"app-platform-complete"},{"from":"app-requests-ecs","to":"app-dcb"},{"from":"app-requests-mediated","to":"app-platform-complete"},{"from":"app-requests-mediated-ui","to":"app-requests-mediated"},{"from":"app-requests-mediated-ui","to":"app-requests-ecs"},{"from":"app-rtac","to":"app-acquisitions"},{"from":"app-edge-complete","to":"app-platform-complete"},{"from":"app-serials-management","to":"app-platform-minimal"},{"from":"app-data-export","to":"app-platform-complete"}]);
+      
+      // create a network
+      var container = document.getElementById("apps_network");
+      var data = {
+        nodes: nodes,
+        edges: edges,
+      };
+      
+      var options = {
+        edges: {
+            arrows: {
+            to: { enabled: true, scaleFactor: 1 }
+            }
+        }
+      };
+      var network = new vis.Network(container, data, options);
+    </script>
+  </body>
+</html>
