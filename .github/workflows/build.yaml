@@ -1,4 +1,4 @@
-name: CI
+name: Build and Deploy
 
 on:
   push:
@@ -9,12 +9,9 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+env:
+  DEPLOY_BRANCH: dist
 
 jobs:
   build:
@@ -35,14 +32,23 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Upload dist folder as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+      - name: Deploy dist folder to branch
+        run: |
+          # Create a clean directory for deployment
+          mkdir -p deploy
+          cp -r dist/* deploy/
+          cd deploy
+          
+          # Configure git
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+          # Initialize git and create the branch
+          git init
+          git checkout -b ${{ env.DEPLOY_BRANCH }}
+          git add .
+          git commit -m "Deploy from commit ${{ github.sha }}"
+          
+          # Push to the target branch
+          git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git push --force origin ${{ env.DEPLOY_BRANCH }}
