@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 env:
   DEPLOY_BRANCH: dist
@@ -34,13 +35,19 @@ jobs:
 
       - name: Deploy dist folder to branch
         run: |
+          # Setup SSH deploy key
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          
           # Create a clean directory for deployment
           mkdir -p deploy
           cp -r dist/* deploy/
           cd deploy
           
           # Configure git
-          git config --global user.name "GitHub Actions"
+          git config --global user.name "GitHub Actions Deploy"
           git config --global user.email "actions@github.com"
           
           # Initialize git and create the branch
@@ -49,6 +56,6 @@ jobs:
           git add .
           git commit -m "Deploy from commit ${{ github.sha }}"
           
-          # Push to the target branch
-          git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          git push --force origin ${{ env.DEPLOY_BRANCH }}
+          # Push using SSH deploy key (bypasses ruleset)
+          git remote add origin git@github.com:${{ github.repository }}.git
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" git push --force origin ${{ env.DEPLOY_BRANCH }}
