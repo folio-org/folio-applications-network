@@ -10,11 +10,6 @@
     "dependencies": [
       {
         "id": "app-platform-minimal"
-      },
-      {
-        "id": "app-acquisitions",
-        "invalidDependency": true,
-        "comment": "There are modules that reference to app-acquisitions, but it is not a dependency of app-platform-complete. This is likely an error in the module definitions."
       }
     ]
   },
