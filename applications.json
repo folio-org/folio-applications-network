@@ -10,6 +10,9 @@
     "dependencies": [
       {
         "id": "app-platform-minimal"
+      },
+      {
+        "id": "app-marc-storage"
       }
     ]
   },
@@ -55,6 +58,9 @@
     "dependencies": [
       {
         "id": "app-platform-complete"
+      },
+      {
+        "id": "app-marc-storage"
       }
     ]
   },
@@ -180,6 +186,9 @@
         "id": "app-fqm",
         "invalidDependency": true,
         "comment": "It should be optional dependency"
+      },
+      {
+        "id": "app-marc-storage"
       }
     ]
   },
@@ -189,6 +198,9 @@
     "dependencies": [
       {
         "id": "app-platform-complete"
+      },
+      {
+        "id": "app-marc-storage"
       }
     ]
   },
@@ -207,6 +219,9 @@
     "dependencies": [
       {
         "id": "app-platform-complete"
+      },
+      {
+        "id": "app-marc-storage"
       }
     ]
   },
@@ -243,6 +258,9 @@
     "dependencies": [
       {
         "id": "app-platform-complete"
+      },
+      {
+        "id": "app-marc-storage"
       }
     ]
   },
@@ -315,10 +333,6 @@
   {
     "id": "app-marc-storage",
     "label": "app-marc-storage",
-    "dependencies": [
-      {
-        "id": "app-platform-complete"
-      }
-    ]
+    "dependencies": []
   }
 ]
