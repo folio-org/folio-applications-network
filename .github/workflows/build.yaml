@@ -45,23 +45,10 @@ jobs:
           aws s3 cp dist/index.html s3://${{ env.S3_BUCKET }}/index.html
           echo "Successfully deployed index.html to S3 bucket: ${{ env.S3_BUCKET }}"
 
-      # - name: Deploy dist folder to branch
-      #   run: |
-      #     # Create a clean directory for deployment
-      #     mkdir -p deploy
-      #     cp -r dist/* deploy/
-      #     cd deploy
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id E2C5JB174CCMR \
+            --paths "/*"
+          echo "Successfully invalidated CloudFront cache for d3hz8uullve0b3.cloudfront.net"
 
-      #     # Configure git
-      #     git config --global user.name "GitHub Actions"
-      #     git config --global user.email "actions@github.com"
-
-      #     # Initialize git and create the branch
-      #     git init
-      #     git checkout -b ${{ env.DEPLOY_BRANCH }}
-      #     git add .
-      #     git commit -m "Deploy from commit ${{ github.sha }}"
-
-      #     # Push to the target branch
-      #     git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-      #     git push --force origin ${{ env.DEPLOY_BRANCH }}
