@@ -311,5 +311,14 @@
         "id": "app-platform-complete"
       }
     ]
+  },
+  {
+    "id": "app-marc-storage",
+    "label": "app-marc-storage",
+    "dependencies": [
+      {
+        "id": "app-platform-complete"
+      }
+    ]
   }
 ]
