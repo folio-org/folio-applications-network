@@ -10,6 +10,12 @@
     "dependencies": [
       {
         "id": "app-platform-minimal"
+      },
+      {
+        "id": "app-marc-storage"
+      },
+      {
+        "id": "app-search"
       }
     ]
   },
@@ -55,6 +61,9 @@
     "dependencies": [
       {
         "id": "app-platform-complete"
+      },
+      {
+        "id": "app-marc-storage"
       }
     ]
   },
@@ -180,6 +189,12 @@
         "id": "app-fqm",
         "invalidDependency": true,
         "comment": "It should be optional dependency"
+      },
+      {
+        "id": "app-marc-storage"
+      },
+      {
+        "id": "app-search"
       }
     ]
   },
@@ -189,6 +204,12 @@
     "dependencies": [
       {
         "id": "app-platform-complete"
+      },
+      {
+        "id": "app-marc-storage"
+      },
+      {
+        "id": "app-search"
       }
     ]
   },
@@ -207,6 +228,9 @@
     "dependencies": [
       {
         "id": "app-platform-complete"
+      },
+      {
+        "id": "app-marc-storage"
       }
     ]
   },
@@ -243,6 +267,9 @@
     "dependencies": [
       {
         "id": "app-platform-complete"
+      },
+      {
+        "id": "app-marc-storage"
       }
     ]
   },
@@ -286,6 +313,15 @@
     ]
   },
   {
+    "id": "app-rtac-cache",
+    "label": "app-rtac-cache",
+    "dependencies": [
+      {
+        "id": "app-rtac"
+      }
+    ]
+  },
+  {
     "id": "app-edge-complete",
     "label": "app-edge-complete",
     "dependencies": [
@@ -309,6 +345,23 @@
     "dependencies": [
       {
         "id": "app-platform-complete"
+      },
+      {
+        "id": "app-search"
+      }
+    ]
+  },
+  {
+    "id": "app-marc-storage",
+    "label": "app-marc-storage",
+    "dependencies": []
+  },
+  {
+    "id": "app-search",
+    "label": "app-search",
+    "dependencies": [
+      {
+        "id": "app-platform-minimal"
       }
     ]
   }
