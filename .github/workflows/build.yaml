@@ -19,7 +19,6 @@ env:
 
 jobs:
   update-applications:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:
@@ -173,6 +172,7 @@ jobs:
           node /tmp/update-apps.js
 
       - name: Create Pull Request
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         id: cpr
         uses: peter-evans/create-pull-request@v5
         with:
@@ -181,7 +181,7 @@ jobs:
           title: "chore: update applications.json from application.template.json"
           body: |
             Automatic update of `applications.json` from `application.template.json` files in snapshot branches of folio-org app-* repositories.
-
+            
             - Found applications with templates will be added/updated
             - Build and deployment will occur after merge
           branch: automated/update-applications
@@ -189,8 +189,7 @@ jobs:
           labels: "automation"
 
       - name: Enable auto-merge
-        if: steps.cpr.outputs.pull-request-number
-        run: gh pr merge --auto --squash ${{ steps.cpr.outputs.pull-request-number }}
+        if: steps.cpr.outputs.pull-request-number && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
