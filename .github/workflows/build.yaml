@@ -5,10 +5,13 @@ on:
     branches: ["main"]
   pull_request:
     branches: ["main"]
+  schedule:
+    - cron: "0 3 * * 1-5"
   workflow_dispatch:
 
 permissions:
   contents: write
+  pull-requests: write
 
 env:
   DEPLOY_BRANCH: dist
@@ -45,10 +48,183 @@ jobs:
           aws s3 cp dist/index.html s3://${{ env.S3_BUCKET }}/index.html
           echo "Successfully deployed index.html to S3 bucket: ${{ env.S3_BUCKET }}"
 
+  update-applications:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update applications.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cat > /tmp/update-apps.js << 'EOF'
+          const fs = require('fs');
+          const https = require('https');
+
+          async function fetchFromGitHub(url, token) {
+            return new Promise((resolve, reject) => {
+              const options = {
+                headers: {
+                  'Accept': 'application/vnd.github.v3.raw',
+                  'User-Agent': 'folio-applications-network',
+                  ...(token && { 'Authorization': `token ${token}` }),
+                }
+              };
+
+              https.get(url, options, (res) => {
+                let data = '';
+                if (res.statusCode === 404) {
+                  resolve(null);
+                  return;
+                }
+                if (res.statusCode !== 200) {
+                  reject(new Error(`HTTP ${res.statusCode}`));
+                  return;
+                }
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => resolve(data));
+              }).on('error', reject);
+            });
+          }
+
+          async function getAppRepositories(token) {
+            const repos = [];
+            let page = 1;
+            const perPage = 100;
+
+            while (true) {
+              const response = await new Promise((resolve, reject) => {
+                const options = {
+                  headers: {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'folio-applications-network',
+                    ...(token && { 'Authorization': `token ${token}` }),
+                  }
+                };
+
+                https.get(`https://api.github.com/orgs/folio-org/repos?page=${page}&per_page=${perPage}`, options, (res) => {
+                  let data = '';
+                  res.on('data', chunk => data += chunk);
+                  res.on('end', () => {
+                    if (res.statusCode !== 200) {
+                      reject(new Error(`HTTP ${res.statusCode}`));
+                      return;
+                    }
+                    resolve(JSON.parse(data));
+                  });
+                }).on('error', reject);
+              });
+
+              if (!Array.isArray(response)) break;
+
+              repos.push(...response.filter(r => r.name.startsWith('app-')).map(r => r.name));
+
+              if (response.length < perPage) break;
+              page++;
+            }
+            return repos;
+          }
+
+          async function getApplicationTemplate(repo, token) {
+            try {
+              const url = `https://raw.githubusercontent.com/folio-org/${repo}/snapshot/application.template.json`;
+              const content = await fetchFromGitHub(url, token);
+              return content ? JSON.parse(content) : null;
+            } catch (error) {
+              console.warn(`Warning: ${repo} - ${error.message}`);
+              return null;
+            }
+          }
+
+          function mergeApplications(existing, newApps) {
+            const existingMap = new Map(existing.map(app => [app.id, app]));
+            newApps.forEach(newApp => {
+              if (existingMap.has(newApp.id)) {
+                const existing = existingMap.get(newApp.id);
+                existingMap.set(newApp.id, { ...existing, ...newApp, dependencies: existing.dependencies || newApp.dependencies });
+              } else {
+                existingMap.set(newApp.id, newApp);
+              }
+            });
+            return Array.from(existingMap.values()).sort((a, b) => a.id.localeCompare(b.id));
+          }
+
+          async function main() {
+            try {
+              const token = process.env.GITHUB_TOKEN || '';
+              console.log('Fetching app-* repositories...');
+              const repos = await getAppRepositories(token);
+              console.log(`Found ${repos.length} repositories`);
+
+              let newApplications = [];
+              console.log('Fetching application.template.json from snapshot branches...');
+              for (const repo of repos) {
+                process.stdout.write(`${repo}... `);
+                const template = await getApplicationTemplate(repo, token);
+                if (template) {
+                  console.log('✓');
+                  newApplications.push({
+                    id: template.id || repo,
+                    label: template.label || repo,
+                    ...(template.dependencies && { dependencies: template.dependencies }),
+                  });
+                } else {
+                  console.log('✗');
+                }
+              }
+
+              let existing = [];
+              if (fs.existsSync('applications.json')) {
+                existing = JSON.parse(fs.readFileSync('applications.json', 'utf8'));
+              }
+
+              const merged = mergeApplications(existing, newApplications);
+              fs.writeFileSync('applications.json', JSON.stringify(merged, null, 2) + '\n', 'utf8');
+              console.log(`\nUpdated ${newApplications.length} applications`);
+            } catch (error) {
+              console.error('Error:', error.message);
+              process.exit(1);
+            }
+          }
+
+          main();
+          EOF
+          node /tmp/update-apps.js
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet applications.json; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add applications.json
+          git commit -m "chore: update applications.json from application.template.json"
+          git push
+
       - name: Invalidate CloudFront cache
         run: |
           aws cloudfront create-invalidation \
             --distribution-id E2C5JB174CCMR \
             --paths "/*"
           echo "Successfully invalidated CloudFront cache for d3hz8uullve0b3.cloudfront.net"
-
