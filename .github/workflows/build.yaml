@@ -218,9 +218,30 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b automated/update-applications-${{ github.run_id }}
           git add applications.json
           git commit -m "chore: update applications.json from application.template.json"
-          git push
+          git push origin automated/update-applications-${{ github.run_id }}
+
+      - name: Create Pull Request
+        if: steps.check_changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update applications.json from application.template.json"
+          title: "chore: update applications.json from application.template.json"
+          body: |
+            Automatic update of `applications.json` from `application.template.json` files in snapshot branches of folio-org app-* repositories.
+          branch: automated/update-applications-${{ github.run_id }}
+          delete-branch: true
+          labels: "automation"
+
+      - name: Enable auto-merge for Pull Request
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          gh pr merge --auto --squash "automated/update-applications-${{ github.run_id }}" || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
         run: npm run build
