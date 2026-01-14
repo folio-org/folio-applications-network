@@ -49,22 +49,29 @@ jobs:
                   'Accept': 'application/vnd.github.v3.raw',
                   'User-Agent': 'folio-applications-network',
                   ...(token && { 'Authorization': `token ${token}` }),
-                }
+                },
+                timeout: 5000
               };
 
-              https.get(url, options, (res) => {
+              const req = https.get(url, options, (res) => {
                 let data = '';
                 if (res.statusCode === 404) {
                   resolve(null);
                   return;
                 }
                 if (res.statusCode !== 200) {
-                  reject(new Error(`HTTP ${res.statusCode}`));
+                  resolve(null);
                   return;
                 }
                 res.on('data', chunk => data += chunk);
                 res.on('end', () => resolve(data));
-              }).on('error', reject);
+              });
+              
+              req.on('error', () => resolve(null));
+              req.on('timeout', () => {
+                req.destroy();
+                resolve(null);
+              });
             });
           }
 
@@ -73,30 +80,37 @@ jobs:
             let page = 1;
             const perPage = 100;
 
-            while (true) {
+            while (page <= 5) {
               const response = await new Promise((resolve, reject) => {
                 const options = {
                   headers: {
                     'Accept': 'application/vnd.github.v3+json',
                     'User-Agent': 'folio-applications-network',
                     ...(token && { 'Authorization': `token ${token}` }),
-                  }
+                  },
+                  timeout: 10000
                 };
 
-                https.get(`https://api.github.com/orgs/folio-org/repos?page=${page}&per_page=${perPage}`, options, (res) => {
+                const req = https.get(`https://api.github.com/orgs/folio-org/repos?page=${page}&per_page=${perPage}`, options, (res) => {
                   let data = '';
                   res.on('data', chunk => data += chunk);
                   res.on('end', () => {
                     if (res.statusCode !== 200) {
-                      reject(new Error(`HTTP ${res.statusCode}`));
+                      resolve([]);
                       return;
                     }
                     resolve(JSON.parse(data));
                   });
-                }).on('error', reject);
+                });
+                
+                req.on('error', () => resolve([]));
+                req.on('timeout', () => {
+                  req.destroy();
+                  resolve([]);
+                });
               });
 
-              if (!Array.isArray(response)) break;
+              if (!Array.isArray(response) || response.length === 0) break;
 
               repos.push(...response.filter(r => r.name.startsWith('app-')).map(r => r.name));
 
@@ -107,14 +121,16 @@ jobs:
           }
 
           async function getApplicationTemplate(repo, token) {
-            try {
-              const url = `https://raw.githubusercontent.com/folio-org/${repo}/snapshot/application.template.json`;
-              const content = await fetchFromGitHub(url, token);
-              return content ? JSON.parse(content) : null;
-            } catch (error) {
-              console.warn(`Warning: ${repo} - ${error.message}`);
-              return null;
+            const url = `https://raw.githubusercontent.com/folio-org/${repo}/snapshot/application.template.json`;
+            const content = await fetchFromGitHub(url, token);
+            if (content) {
+              try {
+                return JSON.parse(content);
+              } catch (e) {
+                return null;
+              }
             }
+            return null;
           }
 
           function mergeApplications(existing, newApps) {
@@ -137,21 +153,29 @@ jobs:
               const repos = await getAppRepositories(token);
               console.log(`Found ${repos.length} repositories`);
 
-              let newApplications = [];
-              console.log('Fetching application.template.json from snapshot branches...');
-              for (const repo of repos) {
-                process.stdout.write(`${repo}... `);
-                const template = await getApplicationTemplate(repo, token);
-                if (template) {
-                  console.log('✓');
-                  newApplications.push({
-                    id: template.id || repo,
-                    label: template.label || repo,
-                    ...(template.dependencies && { dependencies: template.dependencies }),
-                  });
-                } else {
-                  console.log('✗');
-                }
+              const newApplications = [];
+              console.log('Fetching application.template.json (batch processing)...');
+              
+              const batchSize = 10;
+              for (let i = 0; i < repos.length; i += batchSize) {
+                const batch = repos.slice(i, i + batchSize);
+                const results = await Promise.all(
+                  batch.map(async repo => {
+                    const template = await getApplicationTemplate(repo, token);
+                    return { repo, template };
+                  })
+                );
+                
+                results.forEach(({ repo, template }) => {
+                  if (template) {
+                    console.log(`${repo}... ✓`);
+                    newApplications.push({
+                      id: template.id || repo,
+                      label: template.label || repo,
+                      ...(template.dependencies && { dependencies: template.dependencies }),
+                    });
+                  }
+                });
               }
 
               let existing = [];
@@ -161,7 +185,7 @@ jobs:
 
               const merged = mergeApplications(existing, newApplications);
               fs.writeFileSync('applications.json', JSON.stringify(merged, null, 2) + '\n', 'utf8');
-              console.log(`\nUpdated ${newApplications.length} applications`);
+              console.log(`\nSuccessfully updated applications.json with ${newApplications.length} applications`);
             } catch (error) {
               console.error('Error:', error.message);
               process.exit(1);
