@@ -115,14 +115,10 @@
     "label": "app-edge-locate",
     "dependencies": [
       {
-        "name": "app-platform-complete",
-        "version": "^3.2.0-SNAPSHOT",
-        "preRelease": "only"
+        "id": "app-platform-complete"
       },
       {
-        "name": "app-acquisitions",
-        "version": "^1.2.0-SNAPSHOT",
-        "preRelease": "only"
+        "id": "app-acquisitions"
       }
     ]
   },
@@ -131,9 +127,7 @@
     "label": "app-eholdings",
     "dependencies": [
       {
-        "name": "app-platform-minimal",
-        "version": "^2.1.0-SNAPSHOT",
-        "preRelease": "only"
+        "id": "app-platform-minimal"
       }
     ]
   },
@@ -156,9 +150,7 @@
     "label": "app-finc",
     "dependencies": [
       {
-        "name": "app-acquisitions",
-        "version": "^1.2.0-SNAPSHOT",
-        "preRelease": "only"
+        "id": "app-acquisitions"
       }
     ]
   },
@@ -264,9 +256,7 @@
     "label": "app-notification",
     "dependencies": [
       {
-        "name": "app-platform-minimal",
-        "version": "^2.1.0-SNAPSHOT",
-        "preRelease": "only"
+        "id": "app-platform-minimal"
       }
     ]
   },
@@ -316,14 +306,10 @@
     "label": "app-quick-marc",
     "dependencies": [
       {
-        "name": "app-marc-storage",
-        "version": "^1.0.0-SNAPSHOT",
-        "preRelease": "only"
+        "id": "app-marc-storage"
       },
       {
-        "name": "app-platform-minimal",
-        "version": "^2.1.0-SNAPSHOT",
-        "preRelease": "only"
+        "id": "app-platform-minimal"
       }
     ]
   },

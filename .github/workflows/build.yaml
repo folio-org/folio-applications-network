@@ -133,6 +133,18 @@ jobs:
             return null;
           }
 
+          function normalizeDependencies(dependencies) {
+            if (!dependencies || !Array.isArray(dependencies)) return dependencies;
+            return dependencies.map(dep => {
+              const normalized = { id: dep.id || dep.name };
+              if (dep.optional !== undefined) normalized.optional = dep.optional;
+              if (dep.invalidDependency !== undefined) normalized.invalidDependency = dep.invalidDependency;
+              if (dep.comment !== undefined) normalized.comment = dep.comment;
+              if (dep.exists !== undefined) normalized.exists = dep.exists;
+              return normalized;
+            });
+          }
+
           function mergeApplications(existing, newApps) {
             const existingMap = new Map(existing.map(app => [app.id, app]));
             newApps.forEach(newApp => {
@@ -169,11 +181,14 @@ jobs:
                 results.forEach(({ repo, template }) => {
                   if (template) {
                     console.log(`${repo}... ✓`);
-                    newApplications.push({
+                    const app = {
                       id: template.id || repo,
                       label: template.label || repo,
-                      ...(template.dependencies && { dependencies: template.dependencies }),
-                    });
+                    };
+                    if (template.dependencies) {
+                      app.dependencies = normalizeDependencies(template.dependencies);
+                    }
+                    newApplications.push(app);
                   }
                 });
               }
