@@ -1,113 +1,10 @@
 [
   {
-    "id": "app-platform-minimal",
-    "label": "app-platform-minimal",
-    "dependencies": []
-  },
-  {
-    "id": "app-platform-complete",
-    "label": "app-platform-complete",
-    "dependencies": [
-      {
-        "id": "app-platform-minimal"
-      },
-      {
-        "id": "app-marc-storage"
-      },
-      {
-        "id": "app-search"
-      }
-    ]
-  },
-  {
     "id": "app-acquisitions",
     "label": "app-acquisitions",
     "dependencies": [
       {
         "id": "app-platform-complete"
-      }
-    ]
-  },
-  {
-    "id": "app-mosaic",
-    "label": "app-mosaic",
-    "dependencies": [
-      {
-        "id": "app-acquisitions"
-      }
-    ]
-  },
-  {
-    "id": "app-gobi",
-    "label": "app-gobi",
-    "dependencies": [
-      {
-        "id": "app-acquisitions"
-      }
-    ]
-  },
-  {
-    "id": "app-ebsconet",
-    "label": "app-ebsconet",
-    "dependencies": [
-      {
-        "id": "app-acquisitions"
-      }
-    ]
-  },
-  {
-    "id": "app-oai-pmh",
-    "label": "app-oai-pmh",
-    "dependencies": [
-      {
-        "id": "app-platform-complete"
-      },
-      {
-        "id": "app-marc-storage"
-      }
-    ]
-  },
-  {
-    "id": "app-fqm",
-    "label": "app-fqm",
-    "dependencies": [
-      {
-        "id": "app-acquisitions",
-        "invalidDependency": true,
-        "comment": "It should be optional dependency"
-      }
-    ]
-  },
-  {
-    "id": "app-lists",
-    "label": "app-lists",
-    "dependencies": [
-      {
-        "id": "app-fqm"
-      }
-    ]
-  },
-  {
-    "id": "app-oa",
-    "label": "app-oa",
-    "dependencies": [
-      {
-        "id": "app-platform-minimal"
-      }
-    ]
-  },
-  {
-    "id": "app-licenses",
-    "label": "app-licenses",
-    "dependencies": [
-      {
-        "id": "app-platform-minimal"
-      },
-      {
-        "id": "app-acquisitions",
-        "optional": true,
-        "invalidDependency": true,
-        "comment": "It should not depend to whole set of acq modules"
       }
     ]
   },
@@ -121,25 +18,37 @@
     ]
   },
   {
-    "id": "app-erm-usage",
-    "label": "app-erm-usage",
+    "id": "app-bulk-edit",
+    "label": "app-bulk-edit",
     "dependencies": [
       {
-        "id": "app-agreements"
+        "id": "app-fqm",
+        "invalidDependency": true,
+        "comment": "It should be optional dependency"
       },
       {
-        "id": "app-acquisitions",
-        "invalidDependency": true,
-        "comment": "It should not depend to whole set of acq modules"
+        "id": "app-marc-storage"
+      },
+      {
+        "id": "app-search"
       }
     ]
   },
   {
-    "id": "app-service-interaction",
-    "label": "app-service-interaction",
+    "id": "app-consortia",
+    "label": "app-consortia",
     "dependencies": [
       {
         "id": "app-platform-minimal"
+      }
+    ]
+  },
+  {
+    "id": "app-consortia-manager",
+    "label": "app-consortia-manager",
+    "dependencies": [
+      {
+        "id": "app-consortia"
       }
     ]
   },
@@ -163,9 +72,20 @@
     ]
   },
   {
-    "id": "app-z3950",
-    "label": "app-z3950",
-    "invalid": true,
+    "id": "app-data-export",
+    "label": "app-data-export",
+    "dependencies": [
+      {
+        "id": "app-platform-complete"
+      },
+      {
+        "id": "app-search"
+      }
+    ]
+  },
+  {
+    "id": "app-dcb",
+    "label": "app-dcb",
     "dependencies": [
       {
         "id": "app-platform-complete"
@@ -173,28 +93,119 @@
     ]
   },
   {
-    "id": "app-reporting",
-    "label": "app-reporting",
+    "id": "app-ebsconet",
+    "label": "app-ebsconet",
     "dependencies": [
       {
-        "id": "app-platform-minimal"
+        "id": "app-acquisitions"
       }
     ]
   },
   {
-    "id": "app-bulk-edit",
-    "label": "app-bulk-edit",
+    "id": "app-edge-complete",
+    "label": "app-edge-complete",
     "dependencies": [
       {
-        "id": "app-fqm",
+        "id": "app-platform-complete"
+      }
+    ]
+  },
+  {
+    "id": "app-edge-locate",
+    "label": "app-edge-locate",
+    "dependencies": [
+      {
+        "name": "app-platform-complete",
+        "version": "^3.2.0-SNAPSHOT",
+        "preRelease": "only"
+      },
+      {
+        "name": "app-acquisitions",
+        "version": "^1.2.0-SNAPSHOT",
+        "preRelease": "only"
+      }
+    ]
+  },
+  {
+    "id": "app-eholdings",
+    "label": "app-eholdings",
+    "dependencies": [
+      {
+        "name": "app-platform-minimal",
+        "version": "^2.1.0-SNAPSHOT",
+        "preRelease": "only"
+      }
+    ]
+  },
+  {
+    "id": "app-erm-usage",
+    "label": "app-erm-usage",
+    "dependencies": [
+      {
+        "id": "app-agreements"
+      },
+      {
+        "id": "app-acquisitions",
+        "invalidDependency": true,
+        "comment": "It should not depend to whole set of acq modules"
+      }
+    ]
+  },
+  {
+    "id": "app-finc",
+    "label": "app-finc",
+    "dependencies": [
+      {
+        "name": "app-acquisitions",
+        "version": "^1.2.0-SNAPSHOT",
+        "preRelease": "only"
+      }
+    ]
+  },
+  {
+    "id": "app-fqm",
+    "label": "app-fqm",
+    "dependencies": [
+      {
+        "id": "app-acquisitions",
         "invalidDependency": true,
         "comment": "It should be optional dependency"
+      }
+    ]
+  },
+  {
+    "id": "app-gobi",
+    "label": "app-gobi",
+    "dependencies": [
+      {
+        "id": "app-acquisitions"
+      }
+    ]
+  },
+  {
+    "id": "app-inn-reach",
+    "label": "app-inn-reach",
+    "dependencies": [
+      {
+        "id": "app-platform-complete"
       },
       {
         "id": "app-marc-storage"
+      }
+    ]
+  },
+  {
+    "id": "app-licenses",
+    "label": "app-licenses",
+    "dependencies": [
+      {
+        "id": "app-platform-minimal"
       },
       {
-        "id": "app-search"
+        "id": "app-acquisitions",
+        "optional": true,
+        "invalidDependency": true,
+        "comment": "It should not depend to whole set of acq modules"
       }
     ]
   },
@@ -214,50 +225,11 @@
     ]
   },
   {
-    "id": "app-reading-room",
-    "label": "app-reading-room",
+    "id": "app-lists",
+    "label": "app-lists",
     "dependencies": [
       {
-        "id": "app-platform-complete"
-      }
-    ]
-  },
-  {
-    "id": "app-inn-reach",
-    "label": "app-inn-reach",
-    "dependencies": [
-      {
-        "id": "app-platform-complete"
-      },
-      {
-        "id": "app-marc-storage"
-      }
-    ]
-  },
-  {
-    "id": "app-dcb",
-    "label": "app-dcb",
-    "dependencies": [
-      {
-        "id": "app-platform-complete"
-      }
-    ]
-  },
-  {
-    "id": "app-consortia",
-    "label": "app-consortia",
-    "dependencies": [
-      {
-        "id": "app-platform-minimal"
-      }
-    ]
-  },
-  {
-    "id": "app-consortia-manager",
-    "label": "app-consortia-manager",
-    "dependencies": [
-      {
-        "id": "app-consortia"
+        "id": "app-fqm"
       }
     ]
   },
@@ -270,6 +242,106 @@
       },
       {
         "id": "app-marc-storage"
+      }
+    ]
+  },
+  {
+    "id": "app-marc-storage",
+    "label": "app-marc-storage",
+    "dependencies": []
+  },
+  {
+    "id": "app-mosaic",
+    "label": "app-mosaic",
+    "dependencies": [
+      {
+        "id": "app-acquisitions"
+      }
+    ]
+  },
+  {
+    "id": "app-notification",
+    "label": "app-notification",
+    "dependencies": [
+      {
+        "name": "app-platform-minimal",
+        "version": "^2.1.0-SNAPSHOT",
+        "preRelease": "only"
+      }
+    ]
+  },
+  {
+    "id": "app-oa",
+    "label": "app-oa",
+    "dependencies": [
+      {
+        "id": "app-platform-minimal"
+      }
+    ]
+  },
+  {
+    "id": "app-oai-pmh",
+    "label": "app-oai-pmh",
+    "dependencies": [
+      {
+        "id": "app-platform-complete"
+      },
+      {
+        "id": "app-marc-storage"
+      }
+    ]
+  },
+  {
+    "id": "app-platform-complete",
+    "label": "app-platform-complete",
+    "dependencies": [
+      {
+        "id": "app-platform-minimal"
+      },
+      {
+        "id": "app-marc-storage"
+      },
+      {
+        "id": "app-search"
+      }
+    ]
+  },
+  {
+    "id": "app-platform-minimal",
+    "label": "app-platform-minimal",
+    "dependencies": []
+  },
+  {
+    "id": "app-quick-marc",
+    "label": "app-quick-marc",
+    "dependencies": [
+      {
+        "name": "app-marc-storage",
+        "version": "^1.0.0-SNAPSHOT",
+        "preRelease": "only"
+      },
+      {
+        "name": "app-platform-minimal",
+        "version": "^2.1.0-SNAPSHOT",
+        "preRelease": "only"
+      }
+    ]
+  },
+  {
+    "id": "app-reading-room",
+    "label": "app-reading-room",
+    "dependencies": [
+      {
+        "id": "app-platform-complete"
+      }
+    ]
+  },
+  {
+    "id": "app-reporting",
+    "label": "app-reporting",
+    "dependencies": [
+      {
+        "id": "app-platform-minimal"
       }
     ]
   },
@@ -322,11 +394,11 @@
     ]
   },
   {
-    "id": "app-edge-complete",
-    "label": "app-edge-complete",
+    "id": "app-search",
+    "label": "app-search",
     "dependencies": [
       {
-        "id": "app-platform-complete"
+        "id": "app-platform-minimal"
       }
     ]
   },
@@ -340,28 +412,21 @@
     ]
   },
   {
-    "id": "app-data-export",
-    "label": "app-data-export",
+    "id": "app-service-interaction",
+    "label": "app-service-interaction",
     "dependencies": [
       {
-        "id": "app-platform-complete"
-      },
-      {
-        "id": "app-search"
+        "id": "app-platform-minimal"
       }
     ]
   },
   {
-    "id": "app-marc-storage",
-    "label": "app-marc-storage",
-    "dependencies": []
-  },
-  {
-    "id": "app-search",
-    "label": "app-search",
+    "id": "app-z3950",
+    "label": "app-z3950",
+    "invalid": true,
     "dependencies": [
       {
-        "id": "app-platform-minimal"
+        "id": "app-platform-complete"
       }
     ]
   }
