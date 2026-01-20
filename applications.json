@@ -18,6 +18,24 @@
     ]
   },
   {
+    "id": "app-authority-records",
+    "label": "app-authority-records",
+    "dependencies": [
+      {
+        "id": "app-platform-minimal"
+      },
+      {
+        "id": "app-search"
+      },
+      {
+        "id": "app-marc-storage"
+      },
+      {
+        "id": "app-quick-marc"
+      }
+    ]
+  },
+  {
     "id": "app-bulk-edit",
     "label": "app-bulk-edit",
     "dependencies": [
