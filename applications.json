@@ -205,6 +205,15 @@
     ]
   },
   {
+    "id": "app-inventory",
+    "label": "app-inventory",
+    "dependencies": [
+      {
+        "id": "app-platform-minimal"
+      }
+    ]
+  },
+  {
     "id": "app-licenses",
     "label": "app-licenses",
     "dependencies": [
