@@ -145,12 +145,41 @@ jobs:
             });
           }
 
+          function mergeDependencyMetadata(existingDependencies, newDependencies) {
+            if (!Array.isArray(newDependencies)) return existingDependencies;
+            if (!Array.isArray(existingDependencies)) return newDependencies;
+
+            const existingById = new Map(
+              existingDependencies
+                .filter(dep => dep && (dep.id || dep.name))
+                .map(dep => [dep.id || dep.name, dep])
+            );
+
+            return newDependencies.map(dep => {
+              const id = dep && (dep.id || dep.name);
+              const existing = id ? existingById.get(id) : undefined;
+              if (!existing) return dep;
+
+              const merged = { ...dep };
+              if (merged.optional === undefined && existing.optional !== undefined) merged.optional = existing.optional;
+              if (merged.invalidDependency === undefined && existing.invalidDependency !== undefined) merged.invalidDependency = existing.invalidDependency;
+              if (merged.comment === undefined && existing.comment !== undefined) merged.comment = existing.comment;
+              if (merged.exists === undefined && existing.exists !== undefined) merged.exists = existing.exists;
+              return merged;
+            });
+          }
+
           function mergeApplications(existing, newApps) {
             const existingMap = new Map(existing.map(app => [app.id, app]));
             newApps.forEach(newApp => {
               if (existingMap.has(newApp.id)) {
                 const existing = existingMap.get(newApp.id);
-                existingMap.set(newApp.id, { ...existing, ...newApp, dependencies: existing.dependencies || newApp.dependencies });
+                const mergedDependencies = mergeDependencyMetadata(existing.dependencies, newApp.dependencies);
+                existingMap.set(newApp.id, {
+                  ...existing,
+                  ...newApp,
+                  dependencies: mergedDependencies !== undefined ? mergedDependencies : existing.dependencies,
+                });
               } else {
                 existingMap.set(newApp.id, newApp);
               }
