@@ -5,6 +5,9 @@
     "dependencies": [
       {
         "id": "app-platform-complete"
+      },
+      {
+        "id": "app-inventory"
       }
     ]
   },
@@ -45,10 +48,13 @@
         "comment": "It should be optional dependency"
       },
       {
+        "id": "app-search"
+      },
+      {
         "id": "app-marc-storage"
       },
       {
-        "id": "app-search"
+        "id": "app-inventory"
       }
     ]
   },
@@ -76,16 +82,6 @@
     "dependencies": [
       {
         "id": "app-service-interaction"
-      },
-      {
-        "id": "app-licenses",
-        "optional": true,
-        "exists": false
-      },
-      {
-        "id": "app-agreements",
-        "optional": true,
-        "exists": false
       }
     ]
   },
@@ -94,10 +90,19 @@
     "label": "app-data-export",
     "dependencies": [
       {
-        "id": "app-platform-complete"
+        "id": "app-platform-minimal"
       },
       {
         "id": "app-search"
+      },
+      {
+        "id": "app-marc-storage"
+      },
+      {
+        "id": "app-authority-records"
+      },
+      {
+        "id": "app-inventory"
       }
     ]
   },
@@ -107,6 +112,9 @@
     "dependencies": [
       {
         "id": "app-platform-complete"
+      },
+      {
+        "id": "app-inventory"
       }
     ]
   },
@@ -154,12 +162,12 @@
     "label": "app-erm-usage",
     "dependencies": [
       {
-        "id": "app-agreements"
-      },
-      {
         "id": "app-acquisitions",
         "invalidDependency": true,
         "comment": "It should not depend to whole set of acq modules"
+      },
+      {
+        "id": "app-agreements"
       }
     ]
   },
@@ -189,6 +197,9 @@
     "dependencies": [
       {
         "id": "app-acquisitions"
+      },
+      {
+        "id": "app-inventory"
       }
     ]
   },
@@ -201,6 +212,9 @@
       },
       {
         "id": "app-marc-storage"
+      },
+      {
+        "id": "app-inventory"
       }
     ]
   },
@@ -210,6 +224,9 @@
     "dependencies": [
       {
         "id": "app-platform-minimal"
+      },
+      {
+        "id": "app-search"
       }
     ]
   },
@@ -219,12 +236,6 @@
     "dependencies": [
       {
         "id": "app-platform-minimal"
-      },
-      {
-        "id": "app-acquisitions",
-        "optional": true,
-        "invalidDependency": true,
-        "comment": "It should not depend to whole set of acq modules"
       }
     ]
   },
@@ -236,10 +247,13 @@
         "id": "app-platform-complete"
       },
       {
+        "id": "app-search"
+      },
+      {
         "id": "app-marc-storage"
       },
       {
-        "id": "app-search"
+        "id": "app-authority-records"
       }
     ]
   },
@@ -257,10 +271,16 @@
     "label": "app-marc-migrations",
     "dependencies": [
       {
-        "id": "app-platform-complete"
+        "id": "app-platform-minimal"
       },
       {
         "id": "app-marc-storage"
+      },
+      {
+        "id": "app-authority-records"
+      },
+      {
+        "id": "app-inventory"
       }
     ]
   },
@@ -301,10 +321,13 @@
     "label": "app-oai-pmh",
     "dependencies": [
       {
-        "id": "app-platform-complete"
+        "id": "app-platform-minimal"
       },
       {
         "id": "app-marc-storage"
+      },
+      {
+        "id": "app-inventory"
       }
     ]
   },
@@ -316,10 +339,22 @@
         "id": "app-platform-minimal"
       },
       {
+        "id": "app-search"
+      },
+      {
         "id": "app-marc-storage"
       },
       {
-        "id": "app-search"
+        "id": "app-notification"
+      },
+      {
+        "id": "app-quick-marc"
+      },
+      {
+        "id": "app-authority-records"
+      },
+      {
+        "id": "app-inventory"
       }
     ]
   },
@@ -345,7 +380,10 @@
     "label": "app-reading-room",
     "dependencies": [
       {
-        "id": "app-platform-complete"
+        "id": "app-platform-minimal"
+      },
+      {
+        "id": "app-inventory"
       }
     ]
   },
@@ -363,7 +401,13 @@
     "label": "app-requests-ecs",
     "dependencies": [
       {
+        "id": "app-platform-complete"
+      },
+      {
         "id": "app-dcb"
+      },
+      {
+        "id": "app-inventory"
       }
     ]
   },
@@ -373,6 +417,9 @@
     "dependencies": [
       {
         "id": "app-platform-complete"
+      },
+      {
+        "id": "app-inventory"
       }
     ]
   },
@@ -394,6 +441,9 @@
     "dependencies": [
       {
         "id": "app-acquisitions"
+      },
+      {
+        "id": "app-inventory"
       }
     ]
   },
@@ -403,6 +453,9 @@
     "dependencies": [
       {
         "id": "app-rtac"
+      },
+      {
+        "id": "app-inventory"
       }
     ]
   },
