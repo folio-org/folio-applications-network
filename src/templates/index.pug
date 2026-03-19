@@ -2,26 +2,45 @@ doctype html
 html(lang="en")
   head
     title Network
-    script(type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js")
+    script(type="text/javascript" src="https://unpkg.com/3d-force-graph")
     style(type="text/css").
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: #0a0a0f;
+        font-family: sans-serif;
+        overflow: hidden;
+      }
+
       #main {
         display: flex;
-        justify-content: center;
+        width: 100vw;
+        height: 100vh;
       }
 
       #apps_network {
-        width: 1200px;
-        height: 760px;
-        border: 2px solid lightgray;
-        border-left: 0;
+        flex: 1;
       }
 
       #legend {
-        width: 170px;
-        height: 760px;
-        border: 2px solid lightgray;
-        border-right: 0;
-        padding: 0 10px;
+        width: 180px;
+        height: 100vh;
+        border-right: 1px solid #2a2a3a;
+        padding: 12px 10px;
+        background: #111118;
+        color: #ccc;
+        overflow-y: auto;
+        z-index: 10;
+      }
+
+      #legend h2 {
+        color: #eee;
+        font-size: 1rem;
+        margin-bottom: 10px;
       }
 
       #legend .legend-list {
@@ -31,7 +50,11 @@ html(lang="en")
 
       #legend .legend-list .legend-section {
         font-weight: 600;
-        margin: 8px 5px;
+        margin: 10px 0 4px;
+        color: #888;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
 
       #legend .legend-color {
@@ -39,6 +62,7 @@ html(lang="en")
         height: 10px;
         display: inline-block;
         vertical-align: middle;
+        border-radius: 50%;
       }
 
       #legend .legend-color.valid {
@@ -52,8 +76,8 @@ html(lang="en")
       }
 
       #legend .legend-color.planned {
-        background: grey;
-        border: 1px solid lightgray;
+        background: #888;
+        border: 1px solid #555;
       }
 
       #legend .legend-element {
@@ -73,6 +97,7 @@ html(lang="en")
         display: inline-block;
         vertical-align: middle;
         margin-left: 5px;
+        font-size: 0.85rem;
       }
   body
     div#main
@@ -108,24 +133,44 @@ html(lang="en")
       div#apps_network
 
     script(type="text/javascript").
-      // create an array with nodes
-      var nodes = new vis.DataSet(!{JSON.stringify(apps)});
+      var rawNodes = !{JSON.stringify(apps)};
+      var rawLinks = !{JSON.stringify(dependencies)};
 
-      // create an array with edges
-      var edges = new vis.DataSet(!{JSON.stringify(dependencies)});
+      var nodes = rawNodes.map(function(n) {
+        return {
+          id: n.id,
+          name: n.label,
+          color: (n.color && n.color.background) ? n.color.background : '#97c2fc',
+        };
+      });
 
-      // create a network
-      var container = document.getElementById("apps_network");
-      var data = {
-        nodes: nodes,
-        edges: edges,
-      };
+      var links = rawLinks.map(function(d) {
+        return {
+          source: d.from,
+          target: d.to,
+          color: (d.color && d.color.color) ? d.color.color : '#4a6fa5',
+          title: d.title,
+          dashes: d.dashes,
+        };
+      });
 
-      var options = {
-        edges: {
-            arrows: {
-            to: { enabled: true, scaleFactor: 1 }
-            }
-        }
-      };
-      var network = new vis.Network(container, data, options);
+      var container = document.getElementById('apps_network');
+
+      var Graph = ForceGraph3D()(container)
+        .graphData({ nodes: nodes, links: links })
+        .nodeLabel('name')
+        .nodeColor(function(node) { return node.color; })
+        .nodeVal(2)
+        .linkColor(function(link) { return link.color; })
+        .linkOpacity(0.7)
+        .linkDirectionalArrowLength(4)
+        .linkDirectionalArrowRelPos(1)
+        .linkDirectionalParticles(function(link) { return link.dashes ? 0 : 1; })
+        .linkDirectionalParticleSpeed(0.004)
+        .backgroundColor('#0a0a0f')
+        .width(container.clientWidth || window.innerWidth - 180)
+        .height(window.innerHeight);
+
+      window.addEventListener('resize', function() {
+        Graph.width(container.clientWidth).height(window.innerHeight);
+      });
