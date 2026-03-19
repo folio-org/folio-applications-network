@@ -136,11 +136,20 @@ html(lang="en")
       var rawNodes = !{JSON.stringify(apps)};
       var rawLinks = !{JSON.stringify(dependencies)};
 
+      var degreeMap = {};
+      rawNodes.forEach(function(n) { degreeMap[n.id] = 0; });
+      rawLinks.forEach(function(d) {
+        if (degreeMap[d.from] !== undefined) degreeMap[d.from]++;
+        if (degreeMap[d.to] !== undefined) degreeMap[d.to]++;
+      });
+      var maxDegree = Math.max.apply(null, Object.values(degreeMap).concat([1]));
+
       var nodes = rawNodes.map(function(n) {
         return {
           id: n.id,
           name: n.label,
           color: (n.color && n.color.background) ? n.color.background : '#97c2fc',
+          degree: degreeMap[n.id] || 0,
         };
       });
 
@@ -149,7 +158,6 @@ html(lang="en")
           source: d.from,
           target: d.to,
           color: (d.color && d.color.color) ? d.color.color : '#4a6fa5',
-          title: d.title,
           dashes: d.dashes,
         };
       });
@@ -158,18 +166,68 @@ html(lang="en")
 
       var Graph = ForceGraph3D()(container)
         .graphData({ nodes: nodes, links: links })
-        .nodeLabel('name')
+        .nodeLabel(null)
         .nodeColor(function(node) { return node.color; })
-        .nodeVal(2)
+        .nodeVal(function(node) { return Math.max(2, 2 + (node.degree / maxDegree) * 18); })
         .linkColor(function(link) { return link.color; })
-        .linkOpacity(0.7)
+        .linkOpacity(0.5)
         .linkDirectionalArrowLength(4)
         .linkDirectionalArrowRelPos(1)
         .linkDirectionalParticles(function(link) { return link.dashes ? 0 : 1; })
         .linkDirectionalParticleSpeed(0.004)
         .backgroundColor('#0a0a0f')
-        .width(container.clientWidth || window.innerWidth - 180)
+        .width(window.innerWidth - 180)
         .height(window.innerHeight);
+
+      function makeRadialForce(radiusFn) {
+        var fnodes, str = 0.15;
+        function force(alpha) {
+          fnodes.forEach(function(d) {
+            var r = radiusFn(d);
+            var x = (d.x !== undefined && d.x !== 0) ? d.x : 0.001;
+            var y = d.y || 0;
+            var z = d.z || 0;
+            var dist = Math.sqrt(x * x + y * y + z * z) || 0.001;
+            var k = (dist - r) / dist * str * alpha;
+            d.vx -= x * k;
+            d.vy -= y * k;
+            d.vz -= z * k;
+          });
+        }
+        force.initialize = function(n) { fnodes = n; };
+        return force;
+      }
+
+      Graph.d3Force('radial', makeRadialForce(function(node) {
+        return 280 * (1 - node.degree / (maxDegree + 1));
+      }));
+      Graph.d3Force('charge').strength(-120);
+
+      var labelCanvas = document.createElement('canvas');
+      labelCanvas.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;';
+      container.style.position = 'relative';
+      container.appendChild(labelCanvas);
+      var ctx = labelCanvas.getContext('2d');
+
+      function renderLabels() {
+        var w = container.clientWidth, h = container.clientHeight;
+        labelCanvas.width = w;
+        labelCanvas.height = h;
+        ctx.clearRect(0, 0, w, h);
+        ctx.font = '10px "Times New Roman", serif';
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgba(0,0,0,0.8)';
+        ctx.fillStyle = '#ffffff';
+        Graph.graphData().nodes.forEach(function(node) {
+          if (node.x == null) return;
+          var coords = Graph.graph2ScreenCoords(node.x, node.y, node.z);
+          if (coords.x < -50 || coords.x > w + 50 || coords.y < -20 || coords.y > h + 20) return;
+          ctx.strokeText(node.name, coords.x + 7, coords.y + 4);
+          ctx.fillText(node.name, coords.x + 7, coords.y + 4);
+        });
+        requestAnimationFrame(renderLabels);
+      }
+      renderLabels();
 
       window.addEventListener('resize', function() {
         Graph.width(container.clientWidth).height(window.innerHeight);
