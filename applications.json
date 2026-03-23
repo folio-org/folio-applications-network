@@ -227,6 +227,9 @@
       },
       {
         "id": "app-search"
+      },
+      {
+        "id": "app-marc-storage"
       }
     ]
   },
