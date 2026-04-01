@@ -136,11 +136,8 @@ jobs:
           function normalizeDependencies(dependencies) {
             if (!dependencies || !Array.isArray(dependencies)) return dependencies;
             return dependencies.map(dep => {
-              const normalized = { id: dep.id || dep.name };
-              if (dep.optional !== undefined) normalized.optional = dep.optional;
-              if (dep.invalidDependency !== undefined) normalized.invalidDependency = dep.invalidDependency;
-              if (dep.comment !== undefined) normalized.comment = dep.comment;
-              if (dep.exists !== undefined) normalized.exists = dep.exists;
+              const normalized = { ...dep, id: dep.id || dep.name };
+              delete normalized.name;
               return normalized;
             });
           }
@@ -155,18 +152,31 @@ jobs:
                 .map(dep => [dep.id || dep.name, dep])
             );
 
-            return newDependencies.map(dep => {
+            const seenIds = new Set();
+            const mergedDependencies = newDependencies.map(dep => {
               const id = dep && (dep.id || dep.name);
+              if (id) seenIds.add(id);
               const existing = id ? existingById.get(id) : undefined;
               if (!existing) return dep;
 
               const merged = { ...dep };
-              if (merged.optional === undefined && existing.optional !== undefined) merged.optional = existing.optional;
-              if (merged.invalidDependency === undefined && existing.invalidDependency !== undefined) merged.invalidDependency = existing.invalidDependency;
-              if (merged.comment === undefined && existing.comment !== undefined) merged.comment = existing.comment;
-              if (merged.exists === undefined && existing.exists !== undefined) merged.exists = existing.exists;
+              Object.entries(existing).forEach(([key, value]) => {
+                if (key === 'name') return;
+                if (merged[key] === undefined) merged[key] = value;
+              });
               return merged;
             });
+
+            existingDependencies
+              .filter(dep => dep && (dep.id || dep.name))
+              .forEach(dep => {
+                const id = dep.id || dep.name;
+                if (!seenIds.has(id)) {
+                  mergedDependencies.push({ ...dep, id });
+                }
+              });
+
+            return mergedDependencies;
           }
 
           function mergeApplications(existing, newApps) {
@@ -176,8 +186,9 @@ jobs:
                 const existing = existingMap.get(newApp.id);
                 const mergedDependencies = mergeDependencyMetadata(existing.dependencies, newApp.dependencies);
                 existingMap.set(newApp.id, {
-                  ...existing,
                   ...newApp,
+                  ...existing,
+                  id: newApp.id,
                   dependencies: mergedDependencies !== undefined ? mergedDependencies : existing.dependencies,
                 });
               } else {
