@@ -107,6 +107,15 @@
     ]
   },
   {
+    "id": "app-data-import",
+    "label": "app-data-import",
+    "dependencies": [
+      {
+        "id": "app-platform-minimal"
+      }
+    ]
+  },
+  {
     "id": "app-dcb",
     "label": "app-dcb",
     "dependencies": [
