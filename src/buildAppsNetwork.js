@@ -14,14 +14,14 @@ const apps = require('../applications.json')
 const dependencies = require('../applications.json')
   .filter(({ dependencies }) => dependencies && dependencies.length)
   .map(({ id, dependencies: appDependencies }) => {
-   return appDependencies.map(dependency => ({
-    from: id,
-    to: dependency.id,
-    dashes: dependency.optional,
-    ...(dependency.invalidDependency ? { color: { color: 'red' }, } : {}),
-    ...(dependency.exists === false ? { color: { color: 'grey' }, } : {}),
-    title: dependency.comment,
-   }))
+    return appDependencies.map(dependency => ({
+      from: id,
+      to: dependency.id,
+      dashes: dependency.optional,
+      ...(dependency.invalidDependency ? { color: { color: 'red' }, } : {}),
+      ...(dependency.exists === false ? { color: { color: 'grey' }, } : {}),
+      title: dependency.comment,
+    }))
   })
   .flat();
 
@@ -30,7 +30,7 @@ const compileTemplate = pug.compileFile(
   { pretty: true }
 );
 
-const renderTemplate = () => compileTemplate({ apps, dependencies });
+const renderTemplate = () => compileTemplate({ apps, dependencies, appsCount: apps.length });
 
 // Generate HTML content from the Pug template
 const htmlContent = renderTemplate();
