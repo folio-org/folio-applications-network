@@ -535,14 +535,19 @@
     "label": "app-reading-room",
     "dependencies": [
       {
-        "version": "^2.1.0-SNAPSHOT",
+        "version": "^3.0.0-SNAPSHOT",
         "preRelease": "only",
-        "id": "app-platform-minimal"
+        "id": "app-platform-complete"
       },
       {
         "version": "^1.0.0-SNAPSHOT",
         "preRelease": "only",
         "id": "app-inventory"
+      },
+      {
+        "version": "^2.1.0-SNAPSHOT",
+        "preRelease": "only",
+        "id": "app-platform-minimal"
       }
     ]
   },
