@@ -495,17 +495,17 @@
       {
         "version": "^1.0.0-SNAPSHOT",
         "preRelease": "only",
+        "id": "app-inventory"
+      },
+      {
+        "version": "^1.0.0-SNAPSHOT",
+        "preRelease": "only",
         "id": "app-quick-marc"
       },
       {
         "version": "^1.0.0-SNAPSHOT",
         "preRelease": "only",
         "id": "app-authority-records"
-      },
-      {
-        "version": "^1.0.0-SNAPSHOT",
-        "preRelease": "only",
-        "id": "app-inventory"
       }
     ]
   },
