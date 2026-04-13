@@ -412,7 +412,13 @@
   {
     "id": "app-marc-storage",
     "label": "app-marc-storage",
-    "dependencies": []
+    "dependencies": [
+      {
+        "version": "^2.1.0-SNAPSHOT",
+        "preRelease": "only",
+        "id": "app-platform-minimal"
+      }
+    ]
   },
   {
     "id": "app-mosaic",
