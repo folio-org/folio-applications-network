@@ -265,7 +265,7 @@ jobs:
             - Build and deployment will occur after merge
           branch: automated/update-applications
           delete-branch: true
-          labels: "automation"
+          labels: "automation,AI"
 
   build:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
