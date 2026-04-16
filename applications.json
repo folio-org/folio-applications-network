@@ -77,6 +77,11 @@
         "version": "^1.0.0-SNAPSHOT",
         "preRelease": "only",
         "id": "app-inventory"
+      },
+      {
+        "version": "^1.0.0-SNAPSHOT",
+        "preRelease": "only",
+        "id": "app-data-import"
       }
     ]
   },
@@ -406,6 +411,11 @@
         "version": "^1.0.0-SNAPSHOT",
         "preRelease": "only",
         "id": "app-inventory"
+      },
+      {
+        "version": "^1.0.0-SNAPSHOT",
+        "preRelease": "only",
+        "id": "app-data-import"
       }
     ]
   },
