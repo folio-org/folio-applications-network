@@ -701,6 +701,8 @@
     "label": "app-z3950",
     "dependencies": [
       {
+        "version": "^3.0.0-SNAPSHOT",
+        "preRelease": "only",
         "id": "app-platform-complete"
       }
     ]
