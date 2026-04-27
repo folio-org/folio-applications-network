@@ -2,8 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const pug = require('pug');
 
+const blacklist = new Set(require('../blacklist.json'));
+const allApplications = require('../applications.json');
+
 // Compile the Pug template
-const apps = require('../applications.json')
+const apps = allApplications
+  .filter(app => !blacklist.has(app.id))
   .map(app => ({
     id: app.id,
     label: app.label,
@@ -11,17 +15,19 @@ const apps = require('../applications.json')
     ...(app.exists === false ? { color: { border: 'grey', background: 'lightgray' }, } : {}),
   }));
 
-const dependencies = require('../applications.json')
-  .filter(({ dependencies }) => dependencies && dependencies.length)
+const dependencies = allApplications
+  .filter(({ id, dependencies }) => dependencies && dependencies.length && !blacklist.has(id))
   .map(({ id, dependencies: appDependencies }) => {
-    return appDependencies.map(dependency => ({
-      from: id,
-      to: dependency.id,
-      dashes: dependency.optional,
-      ...(dependency.invalidDependency ? { color: { color: 'red' }, } : {}),
-      ...(dependency.exists === false ? { color: { color: 'grey' }, } : {}),
-      title: dependency.comment,
-    }))
+    return appDependencies
+      .filter(dependency => !blacklist.has(dependency.id))
+      .map(dependency => ({
+        from: id,
+        to: dependency.id,
+        dashes: dependency.optional,
+        ...(dependency.invalidDependency ? { color: { color: 'red' }, } : {}),
+        ...(dependency.exists === false ? { color: { color: 'grey' }, } : {}),
+        title: dependency.comment,
+      }))
   })
   .flat();
 
